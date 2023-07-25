@@ -1,0 +1,16 @@
+[project]
+name = "ewd_network_bridge"
+description = "Provides network functionality for Sennheiser EW-D receivers"
+version = "0.1.0"
+authors = [
+    { name = "James Muscat", email = "jamesremuscat@gmail.com" }
+]
+dependencies = [
+]
+
+[project.optional-dependencies]
+dev = [
+]
+
+[build-system]
+requires = ["setuptools"]
