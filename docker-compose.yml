@@ -1,0 +1,30 @@
+version: "3"
+
+networks:
+    ewd_net:
+        driver: ipvlan
+        driver_opts:
+            parent: wlp2s0
+        ipam:
+            config:
+                - subnet: 192.168.2.0/24
+                  gateway: 192.168.2.1
+
+
+x-serviceDef: &serviceDef
+    build: .
+    environment:
+      - PYTHONUNBUFFERED=1
+    security_opt:
+      - apparmor:unconfined  # Allows DBus
+    volumes:
+      - /var/run/dbus/:/var/run/dbus/:ro  # Mounts DBus (on Ubuntu at least)
+
+services:
+    receiver_1:
+        <<: *serviceDef
+        networks:
+            ewd_net:
+                ipv4_address: 192.168.2.199
+        environment:
+            - EWD_MAC_ADDRESS = "c2:77:e6:6e:72:66"
