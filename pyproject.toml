@@ -6,6 +6,7 @@ authors = [
     { name = "James Muscat", email = "jamesremuscat@gmail.com" }
 ]
 dependencies = [
+    "bleak == 0.20.2"
 ]
 
 [project.optional-dependencies]
