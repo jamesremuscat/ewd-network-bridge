@@ -1,5 +1,7 @@
 import asyncio
 
+from bleak import BleakScanner
+
 from .protocol import MediaControlProtocol
 
 
@@ -7,6 +9,10 @@ MEDIA_CONTROL_SERVER_PORT = 53212
 
 
 async def serve():
+
+    devices = await BleakScanner.discover(return_adv=True)
+    for device in devices.values():
+        print(device)
 
     loop = asyncio.get_running_loop()
 
