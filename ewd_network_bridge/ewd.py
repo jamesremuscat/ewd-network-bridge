@@ -1,15 +1,20 @@
 from bleak import BleakScanner
 from dataclasses import dataclass
 
+from .event import Event
+
 import asyncio
 import struct
+import sys
 
-address = "c2:77:e6:6e:72:66"  # Pack 3's receiver
-address = 'E1:CA:D0:2E:B6:71'  # Voc RF4
+# address = "c2:77:e6:6e:72:66"  # Pack 3's receiver
+# address = 'E1:CA:D0:2E:B6:71'  # Voc RF4
 
 
 @dataclass
 class EWDReceiver:
+    address: str = None
+
     frequency: int = None
     battery_runtime: int = None
     battery_percentage: int = None
@@ -36,6 +41,18 @@ class EWDReceiver:
 
     tx_version: str = None
     rx_version: str = None
+
+    on_update = Event()
+
+    _stop_event = asyncio.Event()
+
+    def __init__(self, address):
+        if not address:
+            # This error should never actually be raised, as this __init__
+            # method requires a positional argument
+            # That is the real purpose of this constructor!
+            raise ValueError('Address must be specified')
+        self.address = address
 
     def receive_monitoring_data(self, data):
         freq = struct.unpack_from('i', data, 6)
@@ -82,28 +99,32 @@ class EWDReceiver:
         tx_version = struct.unpack_from('BBB', data, 3)
         self.tx_version = '.'.join(map(lambda v: str(v), tx_version))
 
-
-async def main():
-
-    stop_event = asyncio.Event()
-
-    my_device = EWDReceiver()
-
-    def handle_data(device, advertising_data):
-        if device.address.upper() == address.upper():
+    def handle_data(self, device, advertising_data):
+        if device.address.upper() == self.address.upper():
             mfr_data = advertising_data.manufacturer_data.get(1172)
             if mfr_data is not None:
                 if len(mfr_data) == 18:
-                    my_device.receive_monitoring_data(mfr_data)
+                    self.receive_monitoring_data(mfr_data)
                 elif len(mfr_data) == 6:
-                    my_device.receive_version_data(mfr_data)
-                print(my_device)
+                    self.receive_version_data(mfr_data)
+            self.on_update.trigger(self)
 
-    async with BleakScanner(handle_data) as scanner:
-        ...
-        # Important! Wait for an event to trigger stop, otherwise scanner
-        # will stop immediately.
-        await stop_event.wait()
+    async def start(self):
+        async with BleakScanner(self.handle_data):
+            # Important! Wait for an event to trigger stop, otherwise scanner
+            # will stop immediately.
+            await self._stop_event.wait()
+
+    def stop(self):
+        self._stop_event.set()
+
+
+async def main():
+    if len(sys.argv) < 2:
+        raise RuntimeError('MAC address of EW-D receiver must be specified')
+    my_device = EWDReceiver(sys.argv[1])
+    my_device.on_update.add_listener(print)
+    await my_device.start()
 
 
 if __name__ == '__main__':
