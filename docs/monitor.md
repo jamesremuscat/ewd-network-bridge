@@ -7,6 +7,8 @@ can read this data, and no active connection to the EW-D device is necessary.
 In both cases, the data is contained as a binary string in the
 `manufacturer_data` section of the advertisements.
 
+All data is represented little-endian.
+
 ## Version information
 
 The shorter of the two advertisements contains the current version numbers of
@@ -31,7 +33,7 @@ Total length: 18 bytes
 
 - Byte 0 - 1: Seems to always be `0x02 0x03`
 - Byte 2 - 5: ?
-- Byte 6 - 9: Frequency in kHz (unsigned 4-byte little-endian integer)
+- Byte 6 - 9: Frequency in kHz (unsigned 4-byte integer)
 - Byte 10: Receiver status bitmask
   - 1: Mute lock enabled
   - 2: Receiver panel keypad lock enabled
@@ -45,7 +47,7 @@ Total length: 18 bytes
 - Byte 12: Transmitter capsule type
 - Byte 13: Transmitter power (factory rating - NOT RF signal strength)
 - Byte 14: Tx battery percentage (or `0x7F` if no transmitter connected)
-- Byte 15 - 16: Tx battery runtime estimate in minutes (unsigned 2-byte le int)
+- Byte 15 - 16: Tx battery runtime estimate in minutes (unsigned 2-byte integer)
 - Byte 17: Transmitter status bitmask
   - 1: Phantom power
   - 2: Framing mode (whatever that is)
