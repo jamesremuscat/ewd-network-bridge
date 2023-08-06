@@ -7,8 +7,8 @@ networks:
             parent: wlp2s0
         ipam:
             config:
-                - subnet: 192.168.2.0/24
-                  gateway: 192.168.2.1
+                - subnet: 10.10.7.0/24
+                  gateway: 10.10.7.1
 
 
 x-serviceDef: &serviceDef
@@ -25,6 +25,7 @@ services:
         <<: *serviceDef
         networks:
             ewd_net:
-                ipv4_address: 192.168.2.199
+                ipv4_address: 10.10.7.59
         environment:
-            - EWD_MAC_ADDRESS = "c2:77:e6:6e:72:66"
+            - EWD_NAME=Voc RF4
+            - EWD_MAC_ADDRESS=E1:CA:D0:2E:B6:71
