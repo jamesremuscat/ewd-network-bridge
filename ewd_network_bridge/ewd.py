@@ -109,7 +109,16 @@ class EWDReceiver:
                     self.receive_version_data(mfr_data)
             self.on_update.trigger(self)
 
-    async def start(self):
+    def start(self):
+        self._scan_task = asyncio.create_task(self._scan())
+
+        def on_done(_):
+            self._scan_task = None
+
+        self._scan_task.add_done_callback(on_done)
+
+    async def _scan(self):
+        print('Starting scan')
         async with BleakScanner(self.handle_data):
             # Important! Wait for an event to trigger stop, otherwise scanner
             # will stop immediately.
@@ -124,7 +133,7 @@ async def main():
         raise RuntimeError('MAC address of EW-D receiver must be specified')
     my_device = EWDReceiver(sys.argv[1])
     my_device.on_update.add_listener(print)
-    await my_device.start()
+    await my_device._scan()
 
 
 if __name__ == '__main__':

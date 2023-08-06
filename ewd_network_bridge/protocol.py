@@ -30,6 +30,10 @@ def encode_attribute(name, params):
 
 
 class MediaControlProtocol:
+
+    def __init__(self, device) -> None:
+        self.device = device
+
     def connection_made(self, transport):
         self.transport = transport
 
@@ -40,7 +44,7 @@ class MediaControlProtocol:
         params = parts[1:]
 
         if command == 'Push':
-            # print('Replying to Push')
+            print('Replying to Push from', addr)
             response = encode_attribute('Push', params) + '\x0d'
             for key, value in DEMO_DATA_RX.items():
                 response += encode_attribute(key, value) + '\x0d'
