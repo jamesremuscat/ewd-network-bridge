@@ -12,7 +12,7 @@ This project is not in any way affiliated with Sennheiser.
 ## Project status
 
 - Emulating a G4 receiver over Ethernet: done
-- Reading data from EW-D receiver: In progress
+- Reading data from EW-D receiver: done
 - Writing data to EW-D receiver: Low priority
 
 ## Requirements
@@ -22,7 +22,17 @@ This project is not in any way affiliated with Sennheiser.
     probably fine
 - Git, Docker and `docker-compose` installed
 
+## Running a single instance
+
+```bash
+EWD_NAME="Vocal 1" EWD_MAC_ADDRESS="AB:CD:EF:01:23:45" python -m ewd_network_bridge
+```
+
 ## Deployment
+
+You probably have more than one EW-D receiver that you want to connect up. The
+protocol requires one IP address per receiver, so the easiest way to run
+multiple bridges on one machine is by using Docker and `docker-compose`.
 
 - Check out this repository
 - Edit the sample `docker-compose.yml` file to match your environment:
@@ -32,7 +42,7 @@ This project is not in any way affiliated with Sennheiser.
   - Duplicate the `receiver_1` block until you have one for each of your EW-D
     receivers
   - Give each a unique name (`receiver_2`, ... or something more adventurous),
-    IP address and EW-D Bluetooth
+    IP address, and EW-D name and Bluetooth
     MAC address. [**TODO** make it easy to discover these]
   - Run `docker-compose up -d` to start the bridges.
 
@@ -49,5 +59,14 @@ not need to check out the repo first, and instead just work from the template
     - The host machine will **not** be able to access any of the bridges. This
       means that you can't run a `ping` from the host to check if things are
       working - you need to use a different machine on the same network.
-- The main priority is obtaining read-only data (battery life, RF and AF signal);
-  changing settings on the EW-D is a secondary concern.
+- Changing settings on the EW-D is not currently supported.
+- Obtaining some configuration settings (including receiver name) is only
+  possible via an active Bluetooth connection and is not currently supported.
+- Timeout values for the `Push` command are not supported; `Push` will always
+  be responded to in the same way regardless of the parameter values passed with
+  it, and clients must poll to receive updated data. (This is compatible with
+  the way that Allen & Heath dLive consoles interoperate with Sennheiser G4s.)
+
+## References
+
+- [Sennheiser documentation on Media Control Prototol](https://assets.sennheiser.com/global-downloads/file/12478/TI_1254_MetroMediensteuerung_ewG4_EN.pdf)
