@@ -14,6 +14,7 @@ import sys
 @dataclass
 class EWDReceiver:
     address: str = None
+    name: str = 'EW-D Bridge'
 
     frequency: int = None
     battery_runtime: int = None
@@ -46,13 +47,15 @@ class EWDReceiver:
 
     _stop_event = asyncio.Event()
 
-    def __init__(self, address):
+    def __init__(self, address, name):
         if not address:
             # This error should never actually be raised, as this __init__
             # method requires a positional argument
             # That is the real purpose of this constructor!
             raise ValueError('Address must be specified')
         self.address = address
+        if name:
+            self.name = name
 
     def receive_monitoring_data(self, data):
         freq = struct.unpack_from('i', data, 6)
@@ -118,7 +121,6 @@ class EWDReceiver:
         self._scan_task.add_done_callback(on_done)
 
     async def _scan(self):
-        print('Starting scan')
         async with BleakScanner(self.handle_data):
             # Important! Wait for an event to trigger stop, otherwise scanner
             # will stop immediately.
@@ -126,6 +128,32 @@ class EWDReceiver:
 
     def stop(self):
         self._stop_event.set()
+
+    def to_params_data(self):
+        return {
+            'Name': [self.name],
+            'Frequency': [str(self.frequency), 0, 0],
+            'Mute': [self.mute],
+            'Bat': ['?' if self.battery_percentage is None else self.battery_percentage],
+            'States': [1 if self.mute else 0, 1 if self.link_is_up else 0],
+            'Msg': self._get_params_msg(),
+            'Config': [1]
+        }
+
+    def _get_params_msg(self):
+        msg = []
+
+        if self.battery_runtime < 60:
+            msg.append('Low_Battery')
+        if self.peaking:
+            msg.append('AF_Peak')
+        if self.mute:
+            msg.append('RX_Mute')
+
+        if len(msg) == 0:
+            msg.append('OK')
+
+        return msg
 
 
 async def main():
