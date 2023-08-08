@@ -143,7 +143,7 @@ class EWDReceiver:
     def _get_params_msg(self):
         msg = []
 
-        if self.battery_runtime < 60:
+        if self.battery_runtime is not None and self.battery_runtime < 60:
             msg.append('Low_Battery')
         if self.peaking:
             msg.append('AF_Peak')
