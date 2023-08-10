@@ -22,6 +22,15 @@ This project is not in any way affiliated with Sennheiser.
     probably fine
 - Git, Docker and `docker-compose` installed
 
+## Finding EW-D devices
+
+```bash
+python -m ewd_network_bridge.scanner [timeout, default=60]
+```
+
+will scan nearby Bluetooth devices and list the MAC address and RF frequency of
+any EW-D receivers found.
+
 ## Running a single instance
 
 ```bash
