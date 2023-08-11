@@ -21,6 +21,8 @@ This project is not in any way affiliated with Sennheiser.
   - If you're running recent Ubuntu/Debian with recent-ish hardware you're
     probably fine
 - Git, Docker and `docker-compose` installed
+- The EW-D receivers need to have been paired with an **Android** device before
+  use (see limitations below)
 
 ## Finding EW-D devices
 
@@ -75,6 +77,9 @@ not need to check out the repo first, and instead just work from the template
   be responded to in the same way regardless of the parameter values passed with
   it, and clients must poll to receive updated data. (This is compatible with
   the way that Allen & Heath dLive consoles interoperate with Sennheiser G4s.)
+- Receviers need to have been paired with an Android device (not an Apple device)
+  since, for some reason, they don't broadcast this information once paired with
+  anything fruity. (Needs further investigation into the pairing protocol.)
 
 ## References
 
