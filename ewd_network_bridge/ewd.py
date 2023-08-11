@@ -47,7 +47,7 @@ class EWDReceiver:
 
     _stop_event = asyncio.Event()
 
-    def __init__(self, address, name):
+    def __init__(self, address, name='EW-D Bridge'):
         if not address:
             # This error should never actually be raised, as this __init__
             # method requires a positional argument
